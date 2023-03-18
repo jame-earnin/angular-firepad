@@ -10,9 +10,10 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "strictPropertyInitialization": false,
     "sourceMap": true,
     "paths": {
-      "ngx-monaco-editor": [
+      "@angular-firepad/ngx-monaco-editor": [
         "dist/ngx-monaco-editor"
       ]
     },
@@ -34,5 +35,5 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
 }
