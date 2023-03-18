@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "angular-firepad-0": {
+      "hosting": {
+        "angular-firepad": [
+          "angular-firepad-0"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "angular-firepad-0"
+  }
+}
