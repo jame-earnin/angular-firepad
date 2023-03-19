@@ -1,10 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { Database } from '@angular/fire/database/firebase';
-
-import { EditorComponent as MonacoEditor } from '@angular-firepad/ngx-monaco-editor';
-import * as monaco from "monaco-editor";
-
-import { fromMonaco } from "@hackerrank/firepad";
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { AngularFireDatabase } from '@angular/fire/compat/database';
+import { fromMonacoWithFirebase } from '../firepad-x';
 
 @Component({
   selector: 'app-editor',
@@ -12,11 +8,22 @@ import { fromMonaco } from "@hackerrank/firepad";
   styleUrls: ['./editor.component.scss'],
 })
 export class EditorComponent implements OnInit {
-  @ViewChild(EditorComponent, { static: true }) editor!: MonacoEditor;
-  editorOptions = { theme: 'vs-dark', language: 'javascript' };
+
+  private database: AngularFireDatabase = inject(AngularFireDatabase);
+  editorOptions = { 
+    language: "typescript",
+    fontSize: 18,
+    theme: "vs-dark",
+    // @ts-ignore
+    trimAutoWhitespace: false
+ };
   code: string = 'function x() {\nconsole.log("Hello world!");\n}';
-  constructor(private database: Database) {}
-  ngOnInit() {
-    const firepad = fromMonaco(this.database, this.editor._editor);
+  constructor() {}
+  ngOnInit() {}
+  onInit(editor: any) {
+      const firepad = fromMonacoWithFirebase(this.database.database.ref(), editor, {
+        userId: crypto.randomUUID(),
+        userColor: 'yellow',
+      });
   }
 }
