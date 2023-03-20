@@ -23,7 +23,10 @@ export class EditorComponent implements OnInit {
   onInit(editor: any) {
       const firepad = fromMonacoWithFirebase(this.database.database.ref(), editor, {
         userId: crypto.randomUUID(),
-        userColor: 'yellow',
+        userColor: '#FFA611', // Firebase Color
       });
+
+      window["firepad"] = firepad;
+      window["editor"] = editor; 
   }
 }
