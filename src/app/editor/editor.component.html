@@ -1,1 +1,5 @@
-<ngx-monaco-editor [options]="editorOptions" [(ngModel)]="code" (onInit)="onInit($event)"></ngx-monaco-editor>
+
+<ngx-monaco-editor *ngIf="isLogin; else login" [options]="editorOptions" [(ngModel)]="code" (onInit)="onInit($event)"></ngx-monaco-editor>
+<ng-template #login>
+    <button (click)="loginViaGithub()">Login via Github</button>
+</ng-template>
