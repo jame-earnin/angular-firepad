@@ -59,7 +59,7 @@ export class EditorClient implements IEditorClient {
 
   protected _cursor: ICursor | null;
   protected _focused: boolean;
-  protected _sendCursorTimeout: NodeJS.Timeout | null;
+  protected _sendCursorTimeout: number | null;
 
   /**
    * Provides a channel of communication between database server and editor wrapped inside adapter

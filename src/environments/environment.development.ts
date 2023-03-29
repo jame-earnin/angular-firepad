@@ -7,5 +7,8 @@ export const environment = {
     storageBucket: "angular-firepad-0.appspot.com",
     messagingSenderId: "361969918363",
     appId: "1:361969918363:web:0a27fb31942f01ac26813e",
-    measurementId: "G-NZWWECPMEB"
-  }};
+    measurementId: "G-NZWWECPMEB",
+  },
+  production: false,
+  useEmulators: true,
+};
