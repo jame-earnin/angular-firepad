@@ -2,7 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { GithubAuthProvider } from '@angular/fire/auth';
 import { AngularFireAuth, PERSISTENCE } from '@angular/fire/compat/auth';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
-import { combineLatest, Subject } from 'rxjs';
+import { AngularFireFunctions } from '@angular/fire/compat/functions';
+import { combineLatest, Observable, of, Subject, tap } from 'rxjs';
 import { fromMonacoWithFirebase, IFirepad } from '../firepad-x';
 
 @Component({
@@ -28,9 +29,17 @@ export class EditorComponent implements OnInit {
   code: string = '';
   editorSubject = new Subject<any>();
   firepad: IFirepad;
-  constructor() {}
+  result$: Observable<string> = of('');
+  isLogin: boolean | null = null;
+  constructor(private fns: AngularFireFunctions) {}
   ngOnInit() {
-    combineLatest([this.editorSubject.asObservable(),this.auth.user]).subscribe(([editor,user]) => {
+    combineLatest([this.editorSubject.asObservable(),this.auth.user.pipe(tap(user => {
+      if (user) {
+        this.isLogin = true;
+      } else {
+        this.isLogin = false;
+      }
+    }))]).subscribe(([editor,user]) => {
       if (user?.uid) {
         const firepad = fromMonacoWithFirebase(this.database.database.ref(), editor, {
           userId: user.uid,
@@ -68,4 +77,8 @@ export class EditorComponent implements OnInit {
       // ...
     });
   }
+  run() {
+    const callable = this.fns.httpsCallable('runCallableJS');
+    this.result$ = callable({ code: this.code })
+  }    
 }
