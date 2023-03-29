@@ -1,14 +1,18 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { GithubAuthProvider } from '@angular/fire/auth';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFireAuth, PERSISTENCE } from '@angular/fire/compat/auth';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { combineLatest, Subject } from 'rxjs';
-import { fromMonacoWithFirebase } from '../firepad-x';
+import { fromMonacoWithFirebase, IFirepad } from '../firepad-x';
 
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
+  providers: [
+    // ... Existing Providers
+    { provide: PERSISTENCE, useValue: 'session' },
+  ]
 })
 export class EditorComponent implements OnInit {
   private database: AngularFireDatabase = inject(AngularFireDatabase);
@@ -21,9 +25,9 @@ export class EditorComponent implements OnInit {
     trimAutoWhitespace: false
   };
   editor: any;
-  isLogin = false;
-  code: string = 'function x() {\nconsole.log("Hello world!");\n}';
+  code: string = '';
   editorSubject = new Subject<any>();
+  firepad: IFirepad;
   constructor() {}
   ngOnInit() {
     combineLatest([this.editorSubject.asObservable(),this.auth.user]).subscribe(([editor,user]) => {
@@ -33,9 +37,7 @@ export class EditorComponent implements OnInit {
           userName: user.displayName! ,
           userColor: '#FFA611', // Firebase Color
         });
-  
-        window["firepad"] = firepad;
-        window["editor"] = editor; 
+        this.firepad = firepad;
       }
     })
   }
@@ -54,7 +56,6 @@ export class EditorComponent implements OnInit {
       // The signed-in user info.
       const user = result.user;
       // IdP data available in result.additionalUserInfo.profile.
-      this.isLogin = true;
         // ...
     }).catch((error) => {
       // Handle Errors here.
