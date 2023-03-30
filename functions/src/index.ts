@@ -8,25 +8,45 @@ import { applyValidateToken } from "./auth/validate";
 // // https://firebase.google.com/docs/functions/typescript
 //
 
-
-const requestRunJS = (request: functions.https.Request, response: functions.Response) => {
-  const { code } = request.body;
-  const vm = new VM({ timeout: 5000, allowAsync: false });
+const runCodeInVM = (code: string) => {
+  let logs = '';
+  const vm = new VM({ timeout: 1000, allowAsync: false, sandbox: {
+    console: {
+      log: (...args: any[]) => {
+        if (args?.length) {
+          logs += args.join('\n')
+        } else {
+          logs += 'undefined';
+        }
+        logs += '\n'
+      }
+    },
+  }, eval: false });
   try {
     const result = vm.run(code);
     functions.logger.info(result, {structuredData: true});
-    response.json(result);
+    functions.logger.info(logs, {structuredData: true});
+    return { result, logs };
+  } catch (err: any) {
+    throw Error(err);
+  }
+}
+
+
+const requestRunJS = (request: functions.https.Request, response: functions.Response) => {
+  try {
+    const { code } = request.body;
+    const result = runCodeInVM(code)
+    response.json(result)
   } catch (err) {
     response.status(500);
   }
 }
 
 const callableRunJS = (data: any, context: functions.https.CallableContext) => {
-  const { code } = data;
-  const vm = new VM({ timeout: 5000, allowAsync: false });
   try {
-    const result = vm.run(code);
-    functions.logger.info(result, {structuredData: true});
+    const { code } = data;
+    const result = runCodeInVM(code);
     return result;
   } catch (err: any) {
     return err.toString();

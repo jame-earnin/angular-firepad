@@ -3,8 +3,15 @@ import { GithubAuthProvider } from '@angular/fire/auth';
 import { AngularFireAuth, PERSISTENCE } from '@angular/fire/compat/auth';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, Observable, of, Subject, tap } from 'rxjs';
 import { fromMonacoWithFirebase, IFirepad } from '../firepad-x';
+
+interface Result {
+  result: string;
+  logs: string;
+}
 
 @Component({
   selector: 'app-editor',
@@ -29,10 +36,22 @@ export class EditorComponent implements OnInit {
   code: string = '';
   editorSubject = new Subject<any>();
   firepad: IFirepad;
-  result$: Observable<string> = of('');
+  result$: Observable<Result> = of<Result>({result: '', logs: ''});
   isLogin: boolean | null = null;
-  constructor(private fns: AngularFireFunctions) {}
+  constructor(
+    private fns: AngularFireFunctions,
+    private route: ActivatedRoute,
+    private router: Router,
+    private snackBar: MatSnackBar,
+  ) {}
   ngOnInit() {
+    const roomID = this.route.snapshot.queryParamMap.get('room') || '/';
+    let ref = this.database.database.ref(roomID);
+    if (ref.key === this.database.database.ref().root.key) {  
+        console.log('room not found, create new room');
+        ref = this.database.database.ref().push();
+        this.router.navigate([], { queryParams: { room: ref.key} })
+    }
     combineLatest([this.editorSubject.asObservable(),this.auth.user.pipe(tap(user => {
       if (user) {
         this.isLogin = true;
@@ -41,7 +60,7 @@ export class EditorComponent implements OnInit {
       }
     }))]).subscribe(([editor,user]) => {
       if (user?.uid) {
-        const firepad = fromMonacoWithFirebase(this.database.database.ref(), editor, {
+        const firepad = fromMonacoWithFirebase(ref, editor, {
           userId: user.uid,
           userName: user.displayName! ,
           userColor: '#FFA611', // Firebase Color
@@ -79,6 +98,12 @@ export class EditorComponent implements OnInit {
   }
   run() {
     const callable = this.fns.httpsCallable('runCallableJS');
-    this.result$ = callable({ code: this.code })
+    this.result$ = callable({ code: this.code }).pipe(
+      tap({ 
+        error: (err) => {
+          this.snackBar.open(err, undefined, { duration: 3000})
+        }
+      })
+    )
   }    
 }

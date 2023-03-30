@@ -1,6 +1,9 @@
-<button class="run-btn" mat-raised-button color="accent" (click)="run()">Run</button>
 <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="code" (onInit)="onInit($event)"></ngx-monaco-editor>
-<button mat-raised-button color="warn" *ngIf="isLogin === false" (click)="loginViaGithub()">Login via Github</button>
+<button *ngIf="isLogin === true" class="run-btn" mat-raised-button color="accent" (click)="run()">Run</button>
+<button *ngIf="isLogin === false" mat-raised-button color="warn" (click)="loginViaGithub()">Login via Github</button>
 <div class="console">
-   Result: {{result$ | async}}
+   <pre *ngIf="result$ | async as result">
+      Result: {{result.result}}
+      Logs: {{result.logs}}
+   </pre>
 </div>
