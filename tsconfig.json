@@ -12,11 +12,7 @@
     "noFallthroughCasesInSwitch": true,
     "strictPropertyInitialization": false,
     "sourceMap": true,
-    "paths": {
-      "@angular-firepad/ngx-monaco-editor": [
-        "dist/ngx-monaco-editor"
-      ]
-    },
+    "paths": {},
     "declaration": false,
     "downlevelIteration": true,
     "experimentalDecorators": true,
