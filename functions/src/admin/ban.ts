@@ -1,13 +1,14 @@
-import { database } from "firebase-admin";
+import { auth, database } from "firebase-admin";
 
+const MAX_ERRORS = 100;
 export async function isUserBan(uid: string) {
   const errorRef =  database().ref(`/users/${uid}/errors`);
   const val = (await errorRef.get())?.val();
-  if (val && val > 10) {
+  if (val && val > MAX_ERRORS) {
     if (uid) {
-      // app.auth().deleteUser(uid);
-      // const userRef = app.database().ref(`/users/${context.auth?.uid}`);
-      // userRef.remove();
+      auth().deleteUser(uid);
+      const userRef = database().ref(`/users/${uid}`);
+      userRef.remove();
       return true;
     }
   } else {
