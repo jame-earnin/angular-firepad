@@ -1,12 +1,12 @@
-<div style="display: grid; grid-template-columns: repeat(2, 1fr); height: 100%; position: relative" class="dark-mode">
-  <img src="/assets/logo-logomark.png" style="position: absolute; top: 0; right: 0; height: 50px; margin: 10px; z-index: 1000; opacity: 0.9" />
-  <div style="grid-column: 1/2; display: flex; flex-direction: column;">
+<img src="/assets/logo-logomark.png" style="position: absolute; top: 0; right: 0; height: 50px; margin: 10px; z-index: 1000; opacity: 0.9" />
+<div style="display: grid; grid-template-columns: 1fr 1fr; height: 100%;">
+  <div style="display: flex; flex-direction: column;">
     <ngx-monaco-editor style="height: 90%" [options]="editorOptions" [(ngModel)]="code" (onInit)="onInit($event)"></ngx-monaco-editor>
     <button style="margin-left: auto; align-self: end" *ngIf="isLogin === true" mat-raised-button color="accent" (click)="run()">Run</button>
     <button class="mat-body" *ngIf="isLogin === false" mat-raised-button color="warn" (click)="loginViaGithub()">Login via Github</button>
   </div>
   <div style="padding: 10px">
-     <div *ngIf="result$ | async as result">
+     <div *ngIf="(result$ | async) || {result: '', logs: ''} as result">
        Result: <pre style="height: 200px; overflow-y: scroll">{{result.result}}</pre>
        Logs: <pre style="height: 200px; overflow-y: scroll">{{result.logs}}</pre>
      </div>

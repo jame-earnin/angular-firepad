@@ -9,8 +9,9 @@ import { combineLatest, Observable, of, Subject, tap } from 'rxjs';
 import { fromMonacoWithFirebase, IFirepad } from '../firepad-x';
 
 interface Result {
-  result: string;
-  logs: string;
+  result?: string;
+  logs?: string;
+  error?: string;
 }
 
 @Component({
@@ -26,7 +27,7 @@ export class EditorComponent implements OnInit {
   private database: AngularFireDatabase = inject(AngularFireDatabase);
   auth: AngularFireAuth = inject(AngularFireAuth);
   editorOptions = {
-    language: "typescript",
+    language: "javascript",
     fontSize: 18,
     theme: "vs-dark",
     // @ts-ignore
@@ -100,6 +101,16 @@ export class EditorComponent implements OnInit {
     const callable = this.fns.httpsCallable('runCallableJS');
     this.result$ = callable({ code: this.code }).pipe(
       tap({
+        next: (result) => {
+          const err = result?.error;
+           if (err) {
+             this.snackBar.open(err, undefined, { duration: 3000})
+             if (err === 'You are banned') {
+               this.auth.signOut();
+               // window.close();
+             }
+           }
+        },
         error: (err) => {
           this.snackBar.open(err, undefined, { duration: 3000})
         }
