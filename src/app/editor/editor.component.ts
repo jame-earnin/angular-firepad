@@ -25,7 +25,11 @@ interface Result {
 })
 export class EditorComponent implements OnInit {
   private database: AngularFireDatabase = inject(AngularFireDatabase);
-  auth: AngularFireAuth = inject(AngularFireAuth);
+  private fns: AngularFireFunctions = inject(AngularFireFunctions);
+  private auth: AngularFireAuth = inject(AngularFireAuth);
+  private route: ActivatedRoute = inject(ActivatedRoute);
+  private router: Router = inject(Router);
+  private snackBar: MatSnackBar = inject(MatSnackBar);
   editorOptions = {
     language: "javascript",
     fontSize: 18,
@@ -37,14 +41,10 @@ export class EditorComponent implements OnInit {
   code: string = '';
   editorSubject = new Subject<any>();
   firepad: IFirepad;
-  result$: Observable<Result> = of<Result>({result: '', logs: ''});
+  result$: Observable<Result | null> = of<Result>({result: '', logs: ''});
   isLogin: boolean | null = null;
-  constructor(
-    private fns: AngularFireFunctions,
-    private route: ActivatedRoute,
-    private router: Router,
-    private snackBar: MatSnackBar,
-  ) {}
+  roomID = '';
+  constructor() {}
   ngOnInit() {
     const roomID = this.route.snapshot.queryParamMap.get('room') || '/';
     let ref = this.database.database.ref(roomID);
@@ -53,12 +53,15 @@ export class EditorComponent implements OnInit {
         ref = this.database.database.ref().push();
         this.router.navigate([], { queryParams: { room: ref.key} })
     }
-    combineLatest([this.editorSubject.asObservable(),this.auth.user.pipe(tap(user => {
-      if (user) {
-        this.isLogin = true;
-      } else {
-        this.isLogin = false;
-      }
+    this.roomID = ref.key!;
+    this.result$ = this.database.object<Result>(`${this.roomID}/results`).valueChanges();
+    combineLatest([this.editorSubject.asObservable(),this.auth.user.pipe(
+      tap(user => {
+        if (user) {
+          this.isLogin = true;
+        } else {
+          this.isLogin = false;
+        }
     }))]).subscribe(([editor,user]) => {
       if (user?.uid) {
         const firepad = fromMonacoWithFirebase(ref, editor, {
@@ -77,45 +80,28 @@ export class EditorComponent implements OnInit {
   signInViaGithub() {
     const provider = new GithubAuthProvider();
     this.auth.signInWithPopup(provider).then((result) => {
-      const credential = result.credential;
-
-      // This gives you a GitHub Access Token. You can use it to access the GitHub API.
-      const token = credential?.providerId;
-
-      // The signed-in user info.
-      const user = result.user;
-      // IdP data available in result.additionalUserInfo.profile.
-        // ...
+      console.log(result);
     }).catch((error) => {
-      // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // The email of the user's account used.
-      const email = error.email;
-      // The firebase.auth.AuthCredential type that was used.
-      const credential = error.credential;
-      // ...
+      console.error(error);
     });
   }
   run() {
     const callable = this.fns.httpsCallable('runCallableJS');
-    this.result$ = callable({ code: this.code }).pipe(
-      tap({
-        next: (result) => {
-          const err = result?.error;
-           if (err) {
-             this.snackBar.open(err, undefined, { duration: 3000})
-             if (err === 'You are banned') {
-               this.auth.signOut();
-               // window.close();
-             }
+    callable({ code: this.code, roomID: this.roomID }).subscribe({
+      next: (result) => {
+        const err = result?.error;
+         if (err) {
+           this.snackBar.open(err, undefined, { duration: 3000})
+           if (err === 'You are banned') {
+             this.auth.signOut();
+             // window.close();
            }
-        },
-        error: (err) => {
-          this.snackBar.open(err, undefined, { duration: 3000})
-        }
-      })
-    )
+         }
+      },
+      error: (err) => {
+        this.snackBar.open(err, undefined, { duration: 3000})
+      }
+    })
   }
   signOut() {
     this.auth.signOut();

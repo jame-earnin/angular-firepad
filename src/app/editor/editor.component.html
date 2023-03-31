@@ -3,7 +3,7 @@
   <div style="display: flex; flex-direction: column;">
     <ngx-monaco-editor style="height: 90%" [options]="editorOptions" [(ngModel)]="code" (onInit)="onInit($event)"></ngx-monaco-editor>
     <div style="display: flex;" *ngIf="isLogin === true" >
-      <button style="margin-right: auto;" mat-raised-button color="accent" (click)="signOut()">Login out</button>
+      <button style="margin-right: auto;" mat-raised-button color="accent" (click)="signOut()">Sign out</button>
       <button style="margin-left: auto;" mat-raised-button color="accent" (click)="run()">Run</button>
     </div>
     <button class="mat-body" *ngIf="isLogin === false" mat-raised-button color="warn" (click)="signInViaGithub()">Sign in via Github</button>

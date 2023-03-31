@@ -5,6 +5,7 @@ import { applyValidateToken } from "./auth/validate";
 
 import { isUserBan } from "./admin/ban";
 import * as admin from "firebase-admin";
+import { database } from "firebase-admin";
 
 admin.initializeApp();
 
@@ -33,9 +34,10 @@ const runCodeInVM = (code: string) => {
 }
 
 const requestRunJS = async (request: functions.https.Request, response: functions.Response) => {
-  const { user, code } = request.body;
+  const { user, code, roomID } = request.body;
   try {
     const result = runCodeInVM(code)
+    await database().ref(`${roomID}`).child('results').set(result);
     response.json(result)
   } catch (err) {
     const banned = await isUserBan(user!.uid);
@@ -48,8 +50,9 @@ const requestRunJS = async (request: functions.https.Request, response: function
 
 const callableRunJS = async (data: any, context: functions.https.CallableContext) => {
   try {
-    const { code } = data;
+    const { code, roomID } = data;
     const result = runCodeInVM(code);
+    await database().ref(`${roomID}`).child('results').set(result);
     return result;
   } catch (err: any) {
     const banned = await isUserBan(context.auth!.uid);
