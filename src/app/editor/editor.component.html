@@ -2,8 +2,11 @@
 <div style="display: grid; grid-template-columns: 1fr 1fr; height: 100%;">
   <div style="display: flex; flex-direction: column;">
     <ngx-monaco-editor style="height: 90%" [options]="editorOptions" [(ngModel)]="code" (onInit)="onInit($event)"></ngx-monaco-editor>
-    <button style="margin-left: auto; align-self: end" *ngIf="isLogin === true" mat-raised-button color="accent" (click)="run()">Run</button>
-    <button class="mat-body" *ngIf="isLogin === false" mat-raised-button color="warn" (click)="loginViaGithub()">Login via Github</button>
+    <div style="display: flex;" *ngIf="isLogin === true" >
+      <button style="margin-right: auto;" mat-raised-button color="accent" (click)="signOut()">Login out</button>
+      <button style="margin-left: auto;" mat-raised-button color="accent" (click)="run()">Run</button>
+    </div>
+    <button class="mat-body" *ngIf="isLogin === false" mat-raised-button color="warn" (click)="signInViaGithub()">Sign in via Github</button>
   </div>
   <div style="padding: 10px">
      <h1 *ngIf="(result$ | async) || {result: '', logs: ''} as result">

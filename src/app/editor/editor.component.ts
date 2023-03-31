@@ -74,7 +74,7 @@ export class EditorComponent implements OnInit {
     this.editor = editor;
     this.editorSubject.next(editor);
   }
-  loginViaGithub() {
+  signInViaGithub() {
     const provider = new GithubAuthProvider();
     this.auth.signInWithPopup(provider).then((result) => {
       const credential = result.credential;
@@ -116,5 +116,8 @@ export class EditorComponent implements OnInit {
         }
       })
     )
+  }
+  signOut() {
+    this.auth.signOut();
   }
 }
