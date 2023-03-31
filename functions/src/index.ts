@@ -3,10 +3,10 @@ import * as functions from "firebase-functions";
 import { VM } from 'vm2';
 import { applyValidateToken } from "./auth/validate";
 
+import { isUserBan } from "./admin/ban";
+import * as admin from "firebase-admin";
 
-// // Start writing functions
-// // https://firebase.google.com/docs/functions/typescript
-//
+admin.initializeApp();
 
 const runCodeInVM = (code: string) => {
   let logs = '';
@@ -26,33 +26,52 @@ const runCodeInVM = (code: string) => {
     const result = vm.run(code);
     functions.logger.info(result, {structuredData: true});
     functions.logger.info(logs, {structuredData: true});
-    return { result, logs };
+    return { result: String(result), logs };
   } catch (err: any) {
     throw Error(err);
   }
 }
 
-
-const requestRunJS = (request: functions.https.Request, response: functions.Response) => {
+const requestRunJS = async (request: functions.https.Request, response: functions.Response) => {
+  const { user, code } = request.body;
   try {
-    const { code } = request.body;
     const result = runCodeInVM(code)
     response.json(result)
   } catch (err) {
+    const banned = await isUserBan(user!.uid);
+    if (banned) {
+      response.status(403);
+    }
     response.status(500);
   }
 }
 
-const callableRunJS = (data: any, context: functions.https.CallableContext) => {
+const callableRunJS = async (data: any, context: functions.https.CallableContext) => {
   try {
     const { code } = data;
     const result = runCodeInVM(code);
     return result;
   } catch (err: any) {
-    return err.toString();
+    const banned = await isUserBan(context.auth!.uid);
+    if (banned) {
+      return { error: 'You are banned' };
+    }
+    return { error: err.toString() };
   }
 }
 
-export const runJS = functions.https.onRequest(applyValidateToken(requestRunJS));
+export const runJS = functions.region('asia-southeast1').runWith({
+  // Ensure the function has enough memory and time
+  // to process large files
+  timeoutSeconds: 5,
+  memory: "128MB",
+  maxInstances: 100,
+}).https.onRequest(applyValidateToken(requestRunJS));
 
-export const runCallableJS = functions.https.onCall(callableRunJS)
+export const runCallableJS = functions.region('asia-southeast1').runWith({
+  // Ensure the function has enough memory and time
+  // to process large files
+  timeoutSeconds: 5,
+  memory: "128MB",
+  maxInstances: 100,
+}).https.onCall(callableRunJS)

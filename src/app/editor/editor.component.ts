@@ -25,7 +25,7 @@ interface Result {
 export class EditorComponent implements OnInit {
   private database: AngularFireDatabase = inject(AngularFireDatabase);
   auth: AngularFireAuth = inject(AngularFireAuth);
-  editorOptions = { 
+  editorOptions = {
     language: "typescript",
     fontSize: 18,
     theme: "vs-dark",
@@ -47,7 +47,7 @@ export class EditorComponent implements OnInit {
   ngOnInit() {
     const roomID = this.route.snapshot.queryParamMap.get('room') || '/';
     let ref = this.database.database.ref(roomID);
-    if (ref.key === this.database.database.ref().root.key) {  
+    if (ref.key === this.database.database.ref().root.key) {
         console.log('room not found, create new room');
         ref = this.database.database.ref().push();
         this.router.navigate([], { queryParams: { room: ref.key} })
@@ -77,10 +77,10 @@ export class EditorComponent implements OnInit {
     const provider = new GithubAuthProvider();
     this.auth.signInWithPopup(provider).then((result) => {
       const credential = result.credential;
-  
+
       // This gives you a GitHub Access Token. You can use it to access the GitHub API.
       const token = credential?.providerId;
-  
+
       // The signed-in user info.
       const user = result.user;
       // IdP data available in result.additionalUserInfo.profile.
@@ -99,11 +99,11 @@ export class EditorComponent implements OnInit {
   run() {
     const callable = this.fns.httpsCallable('runCallableJS');
     this.result$ = callable({ code: this.code }).pipe(
-      tap({ 
+      tap({
         error: (err) => {
           this.snackBar.open(err, undefined, { duration: 3000})
         }
       })
     )
-  }    
+  }
 }

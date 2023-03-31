@@ -20,7 +20,7 @@ $angular-firepad-warn: mat.define-palette(mat.$orange-palette);
 
 // Create the theme object. A theme consists of configurations for individual
 // theming systems such as "color" or "typography".
-$angular-firepad-theme: mat.define-light-theme((
+$angular-firepad-theme: mat.define-dark-theme((
   color: (
     primary: $angular-firepad-primary,
     accent: $angular-firepad-accent,
@@ -35,4 +35,4 @@ $angular-firepad-theme: mat.define-light-theme((
 
 /* You can add global styles to this file, and also import other style files */
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;}
