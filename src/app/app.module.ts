@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
 import { ScreenTrackingService,UserTrackingService } from '@angular/fire/analytics';
 import { EditorComponent } from './editor/editor.component';
-import { MonacoEditorModule } from '@angular-firepad/ngx-monaco-editor';
+import { MonacoEditorModule } from "ngx-monaco-editor-v2"
 import { FormsModule } from '@angular/forms';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
