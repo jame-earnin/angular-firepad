@@ -6,9 +6,9 @@ export async function isUserBan(uid: string) {
   const val = (await errorRef.get())?.val();
   if (val && val > MAX_ERRORS) {
     if (uid) {
-      auth().deleteUser(uid);
+      await auth().deleteUser(uid);
       const userRef = database().ref(`/users/${uid}`);
-      userRef.remove();
+      await userRef.remove();
       return true;
     }
   } else {
