@@ -6,9 +6,9 @@
     <button class="mat-body" *ngIf="isLogin === false" mat-raised-button color="warn" (click)="loginViaGithub()">Login via Github</button>
   </div>
   <div style="padding: 10px">
-     <div *ngIf="(result$ | async) || {result: '', logs: ''} as result">
+     <h1 *ngIf="(result$ | async) || {result: '', logs: ''} as result">
        Result: <pre style="height: 200px; overflow-y: scroll">{{result.result}}</pre>
        Logs: <pre style="height: 200px; overflow-y: scroll">{{result.logs}}</pre>
-     </div>
+     </h1>
   </div>
 </div>
