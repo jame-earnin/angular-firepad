@@ -1,10 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
-import { ScreenTrackingService,UserTrackingService } from '@angular/fire/analytics';
 import { EditorComponent } from './editor/editor.component';
 import { MonacoEditorModule } from "ngx-monaco-editor-v2"
 import { FormsModule } from '@angular/forms';
@@ -37,7 +35,6 @@ import { MatToolbarModule } from "@angular/material/toolbar";
     MonacoEditorModule,
   ],
   providers: [
-    ScreenTrackingService,UserTrackingService,
     { provide: USE_FUNCTIONS_EMULATOR, useValue: environment.useEmulators ? ['localhost', 5001] : undefined },
     { provide: REGION, useValue: 'asia-southeast1' },
   ],
